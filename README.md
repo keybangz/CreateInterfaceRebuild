@@ -1,2 +1,66 @@
 # CreateInterfaceRebuild
  Simple DLL to display all interfaces on Counter-Strike 2 from client.dll, server.dll, engine2.dll
+
+ Offsets can be found at CreateInterface exports on desired DLL.
+
+# Preview
+![image](https://github.com/keybangz/CreateInterfaceRebuild/assets/23132897/c3bf09c1-33bd-4464-9d0f-852aff586509)
+
+# Output (10/09/23)
+```
+CLIENT.DLL INTERFACES
+LegacyGameUI001
+Source2ClientUI001
+Source2ClientPrediction001
+ClientToolsInfo_001
+Source2Client002
+GameClientExports001
+EmptyWorldService001_Client
+Source2ClientConfig001
+
+SERVER.DLL INTERFACES
+NavGameTest001
+ServerToolsInfo_001
+Source2GameClients001
+Source2GameEntities001
+Source2Server001
+EmptyWorldService001_Server
+Source2ServerConfig001
+EntitySubclassUtilsV001
+customnavsystem001
+Source2GameDirector001
+
+ENGINE2.DLL INTERFACES
+SimpleEngineLoopService_001
+ClientServerEngineLoopService_001
+KeyValueCache001
+HostStateMgr001
+GameEventSystemServerV001
+GameEventSystemClientV001
+EngineServiceMgr001
+VProfService_001
+ToolService_001
+StatsService_001
+SplitScreenService_001
+SoundService_001
+ScreenshotService001
+RenderService_001
+NetworkService_001
+NetworkServerService_001
+NetworkP2PService_001
+NetworkClientService_001
+MapListService_001
+InputService_001
+GameUIService_001
+GameResourceServiceServerV001
+GameResourceServiceClientV001
+BugService001
+BenchmarkService001
+VENGINE_GAMEUIFUNCS_VERSION005
+EngineGameUI001
+INETSUPPORT_001
+Source2EngineToServerStringTable001
+Source2EngineToServer001
+Source2EngineToClientStringTable001
+Source2EngineToClient001
+```
