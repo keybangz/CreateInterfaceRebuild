@@ -4,7 +4,7 @@
  Offsets can be found at CreateInterface exports on desired DLL.
 
 # Preview
-![image](https://github.com/keybangz/CreateInterfaceRebuild/assets/23132897/c3bf09c1-33bd-4464-9d0f-852aff586509)
+![image](https://github.com/keybangz/CreateInterfaceRebuild/assets/23132897/dbec7f3f-bf60-4d22-b286-f0840146cb88)
 
 # Output (10/09/23)
 ```
