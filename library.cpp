@@ -48,7 +48,6 @@ void client() {
 
 // server handle
 void server() {
-    AllocConsole();
     FILE* file = nullptr;
 
     // redirect console stream
@@ -83,7 +82,6 @@ void server() {
 // engine handle
 
 void engine2() {
-    AllocConsole();
     FILE* file = nullptr;
 
     // redirect console stream
