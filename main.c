@@ -96,6 +96,10 @@ int __attribute__ ((constructor)) SoEntryPoint() {
   return 0;
 }
 
+/*
+  * int client(void*)
+  * @brief Finds the interface table pointer and iterates through it via a predefined offset.
+ */
 int client(void *baseAddr) {
   // Use-case: Calculate the addition of the baseAddr and add the byte offset (qword_4647580 in IDA as of 18/02/26)
   uintptr_t listAddr = (uintptr_t)baseAddr + 0x4647580;
@@ -119,13 +123,10 @@ int client(void *baseAddr) {
   return 0;
 }
 
-// TODO: Update function to scan byte signature of the CreateInterface function
-// I have assumed the instructions returned would infer the bytes in the mov instruction
-// This will never match unless the mov instruction is the only instruction inside CreateInterface
-// Scan bytes in function -> Find matching start byte -> Check trailing bytes (2nd and 3rd) from 1st byte position
-// If match, get address of the interface list from the instruction presented
-// and (here's hoping) that should always return the inteface list.
-// Feels like I'm missing something???
+/*
+  * void client_dynamic(void*)
+  * @brief Finds the interface table pointer and iterates through it via a predefined pattern.
+*/
 void client_dynamic(void *handle) {
   // Get the address of CreateInterface from libclient.so exports.
   void* fnPointer = dlsym(handle, "CreateInterface");
