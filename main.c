@@ -103,9 +103,9 @@ int client(void *baseAddr) {
   // Use-case: Access the pointer stored at the address calculated.
   InterfaceReg* interfaceList = *(InterfaceReg**)listAddr; 
 
-  fprintf(stderr, "client() called.\n");
+  fprintf(stderr, "\nclient() called.\n\n");
   fprintf(stderr, "Reading Interface List from: %p\n", (void*)listAddr);
-  fprintf(stderr, "Interface list pointer: %p\n", (void*)interfaceList);
+  fprintf(stderr, "Interface list pointer: %p\n\n", (void*)interfaceList);
 
   if(!interfaceList) {
     fprintf(stderr, "Interface List pointer is NULL!\n");
@@ -135,13 +135,10 @@ void client_dynamic(void *handle) {
     return;
   }
 
-  fprintf(stderr, "client_dynamic() called.\n");
+  fprintf(stderr, "\nclient_dynamic() called.\n\n");
   fprintf(stderr, "CreateInterface found at %p: \n", fnPointer);
 
-  // Cast to byte array to read the assembly opcodes.
-  uint8_t* instructions = (uint8_t*)fnPointer;
-
-  // Expected OPCodes: 48 8D 1D
+  // Expected OPCodes: 48 8B 1D
   // mov rbx, [rip+disp32]
   //
   // defuse.ca output:
@@ -154,32 +151,60 @@ void client_dynamic(void *handle) {
   // 4-7  - Immediate displacement (4 bytes)
   //
   // 1-3 (from my understanding) are considered the opcode in the instruction aka `mov`
-  // 4-7 is the data for the calculation.
-  
-  // This is a bit hacky, tbh
-  if(instructions[0] == 0x48 && instructions[1] == 0x8B && instructions[2] == 0x1D) {
-    // Extract the 4-byte displacement.
-    int32_t displacement;
-    memcpy(&displacement, &instructions[3], 4); // Data from instruction is 4 bytes long, copy 4 bytes into our displacement variable.
+  // 4-7 is the data for the calculation. 
 
-    // Calculate absolute address of InterfaceReg pointer.
-    uintptr_t nextInst = (uintptr_t)fnPointer + 7; // Function pointer + size of instruction
-    uintptr_t listAddr = nextInst + displacement;
+  // Cast to byte array to get the opcodes in the instruction.
+  uint8_t* bytesCollected = (uint8_t*)fnPointer;
 
-    // Dereference to get the list head.
-    InterfaceReg* interfaceList = *(InterfaceReg**)listAddr;
+  // List of bytes (opcodes) in order we are scanning for.
+  uint8_t bytePattern[] = { 0x48, 0x8B, 0x1D };
 
-    if(!interfaceList) {
-      fprintf(stderr, "Interface list pointer is NULL\n");
-      return;
+  // Loop through 64 bytes 
+  for (int i = 0; i < 64; i++) {
+    if(bytesCollected[i] == 0xC3) { // 0xC3 is a RET instruction, we check if we hit this and break our loop.
+      fprintf(stderr, "Hit RET instruction.\n");
+      break;
     }
+    
+    // memcmp() returns 0 if the bytes match.
+    // Compare address (bytesCollected+i) with our pattern.
+    // We do this because we check the byte (opcode) infront of the current iteration.
+    // If memcmp does not output 0, it means the next byte is not one listed in the pattern we defined above.
+    if(memcmp(bytesCollected + i, (void*)bytePattern, sizeof(bytePattern)) == 0) {
+      fprintf(stderr, "Pattern found instruction at offset %d\n", i);
 
-    fprintf(stderr, "client_dynamic() completed! Interface list is at: %p\n", (void*)listAddr);
+      // Get the memory address of the current instruction.
+      uintptr_t nextAddr = (uintptr_t)(bytesCollected + i);
 
-    for (InterfaceReg *current = interfaceList; current; current = current->m_pNext) {
-      fprintf(stderr, "Interface: %s\n", current->m_pName);
+      // Read the 4-byte displacement, (3 bytes before our pattern)
+      uint32_t displacement = *(int32_t*)(nextAddr + 3); // Data from instruction is 4 bytes long, copy 4 bytes into our displacement variable.
+
+      // Calculate absolute address of InterfaceReg pointer. 
+      uintptr_t listAddr = (nextAddr + 7) + displacement; // (Function pointer + size of instruction(7)) + displacement.
+
+      fprintf(stderr, "Instruction Address: %p\n", (void*)nextAddr);
+
+      fprintf(stderr, "Reading Interface List from: %p\n", (void*)listAddr);
+
+      // Dereference the list to get the list head.
+      InterfaceReg* interfaceList = *(InterfaceReg**)listAddr;
+
+      if(!interfaceList) {
+        fprintf(stderr, "Interface list pointer is NULL\n");
+        break;
+      }
+
+      fprintf(stderr, "Interface list pointer: %p\n\n", (void*)interfaceList); 
+
+      // Loop through interface list and print all interfaces names.
+      for (InterfaceReg *current = interfaceList; current; current = current->m_pNext) {
+        if(current->m_pNext == current)
+          break;
+
+        fprintf(stderr, "%s => %p\n", current->m_pName, current->m_CreateFn()); 
+      }
+      
+      break;
     }
-  } else {
-    fprintf(stderr, "Instruction pattern did not match analyzed output.\n");
-  }
+  } 
 }
