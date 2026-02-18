@@ -184,7 +184,6 @@ void client_dynamic(void *handle) {
       uintptr_t listAddr = (nextAddr + 7) + displacement; // (Function pointer + size of instruction(7)) + displacement.
 
       fprintf(stderr, "Instruction Address: %p\n", (void*)nextAddr);
-
       fprintf(stderr, "Reading Interface List from: %p\n", (void*)listAddr);
 
       // Dereference the list to get the list head.
